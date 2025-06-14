@@ -1,0 +1,2117 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLUTOTRADER - Global Trading Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        :root {
+            --bg-color: black;
+            --text-color: #e2e8f0;
+            --header-bg: #0a0a0a;
+            --card-bg: #0d0d0d;
+            --border-color: #222;
+            --hover-bg-light: rgba(59, 130, 246, 0.2);
+            --hover-text-light: #60a5fa;
+            --active-nav-bg: rgba(59, 130, 246, 0.3);
+            --active-nav-text: #93c5fd;
+            --input-bg: #1a1a1a;
+            --table-header-bg: #1a1a1a;
+            --table-border: #1a1a1a;
+            --table-hover-bg: #111;
+            --toast-bg: #1a1a1a;
+            --tab-inactive-bg: #1a1a1a;
+            --tab-inactive-text: #94a3b8;
+            --tab-active-bg: #0d0d0d;
+            --tab-active-border: #3b82f6;
+            --chart-toolbar-bg: #0a0a0a;
+            --placeholder-color: #4b5563;
+        }
+
+        body.light-mode {
+            --bg-color: #f0f2f5;
+            --text-color: #333;
+            --header-bg: #ffffff;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --hover-bg-light: rgba(59, 130, 246, 0.1);
+            --hover-text-light: #3b82f6;
+            --active-nav-bg: rgba(59, 130, 246, 0.15);
+            --active-nav-text: #3b82f6;
+            --input-bg: #f9f9f9;
+            --table-header-bg: #e2e8f0;
+            --table-border: #e0e0e0;
+            --table-hover-bg: #f5f5f5;
+            --toast-bg: #ffffff;
+            --tab-inactive-bg: #f5f5f5;
+            --tab-inactive-text: #666;
+            --tab-active-bg: #ffffff;
+            --tab-active-border: #3b82f6;
+            --chart-toolbar-bg: #f0f2f5;
+            --placeholder-color: #9ca3af;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            scroll-behavior: smooth;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        header, aside, .tradingview-widget-container, .bg-gray-900, .bg-gray-950, .chat-popup, .auth-modal-content, .toast-message, .tab-button, .tab-content {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        /* Specific overrides for elements that should always be dark regardless of theme */
+        body.light-mode .chat-popup,
+        body.light-mode .auth-modal-content,
+        body.light-mode .bg-gray-950,
+        body.light-mode .bg-gray-900,
+        body.light-mode .chat-header,
+        body.light-mode .chat-body,
+        body.light-mode .chat-footer,
+        body.light-mode .trades-table th,
+        body.light-mode .trades-table td {
+             background-color: black;
+             color: #e2e8f0;
+             border-color: #222;
+        }
+        body.light-mode .trades-table tr:hover {
+            background-color: #111;
+        }
+        body.light-mode .chat-message-agent {
+            background-color: #1a1a1a;
+            color: #e2e8f0;
+        }
+        body.light-mode .chat-input,
+        body.light-mode input[type="email"],
+        body.light-mode input[type="password"],
+        body.light-mode input[type="number"],
+        body.light-mode input[type="text"],
+        body.light-mode select {
+            background-color: var(--input-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+        body.light-mode input::placeholder,
+        body.light-mode select::placeholder {
+            color: var(--placeholder-color);
+        }
+
+
+        #mobile-menu-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 900;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #main-nav {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+        }
+        #main-nav.active {
+            transform: translateX(0);
+        }
+        @media (min-width: 768px) {
+            #main-nav {
+                transform: translateX(0);
+            }
+        }
+
+        /* Active navigation link highlighting */
+        .nav-link-active {
+            background-color: var(--active-nav-bg);
+            color: var(--active-nav-text);
+            font-weight: 600;
+        }
+
+
+        .chat-widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .chat-popup {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+            width: 320px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .chat-header {
+            background-color: var(--table-header-bg); /* Use table header bg for consistency */
+            color: var(--text-color);
+            padding: 16px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .chat-body {
+            flex-grow: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background-color: #050505; /* Always very dark */
+            color: #cbd5e0;
+            font-size: 0.9em;
+        }
+        .chat-footer {
+            padding: 16px;
+            background-color: var(--card-bg);
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input::placeholder {
+            color: var(--placeholder-color);
+        }
+        .nav-link-mature {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+            color: var(--text-color); /* Ensure initial color adapts */
+        }
+        .nav-link-mature:hover {
+            background-color: var(--hover-bg-light);
+            color: var(--hover-text-light);
+        }
+
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        .g_id_signin iframe {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .custom-message-box {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .trades-table th, .trades-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--table-border);
+        }
+        .trades-table th {
+            background-color: var(--table-header-bg);
+            color: var(--tab-inactive-text);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        .trades-table tr:hover {
+            background-color: var(--table-hover-bg);
+        }
+
+        .auth-modal-overlay {
+            /* Fix: Ensure overlay covers everything with a high z-index */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Increased z-index */
+        }
+        .auth-modal-content {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 2.5rem; /* p-10 */
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            position: relative; /* Needed for absolute positioning of close button */
+            z-index: 10000; /* Ensure content is above overlay background */
+        }
+        .auth-modal-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+        .auth-modal-close-button:hover {
+            color: var(--text-color);
+        }
+
+        #back-to-top-btn {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Toast Notification styles */
+        .toast-container {
+            position: fixed;
+            top: 20px; /* Position at the top */
+            right: 20px;
+            z-index: 10000;
+            display: flex; /* Changed to flex for stacking */
+            flex-direction: column; /* Stack vertically */
+            gap: 10px; /* Space between toasts */
+            pointer-events: none; /* Allows clicks on elements behind it */
+        }
+
+        .toast-message {
+            background-color: var(--toast-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-left-width: 4px; /* Added for visual distinction */
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 1rem 1.25rem; /* px-4 py-3 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 280px;
+            max-width: 350px;
+            opacity: 0; /* Start hidden for animation */
+            transform: translateY(-50px); /* Start above for slide-in */
+            transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition */
+            animation: none; /* Will be set by JS */
+            pointer-events: auto; /* Re-enable pointer events for clicking close button */
+        }
+        .toast-message.success { border-left-color: #22c55e; }
+        .toast-message.error { border-left-color: #ef4444; }
+        .toast-message.info { border-left-color: #3b82f6; }
+        .toast-close-button {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            line-height: 1;
+            color: #777;
+            cursor: pointer;
+            margin-left: 1rem;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        .toast-close-button:hover {
+            color: var(--text-color);
+            opacity: 1;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-50px); }
+        }
+
+        /* Tabs styling */
+        .tab-button {
+            background-color: var(--tab-inactive-bg);
+            color: var(--tab-inactive-text);
+        }
+        .tab-button.active-tab {
+            background-color: var(--tab-active-bg);
+            color: var(--text-color);
+            border-bottom: 2px solid var(--tab-active-border);
+        }
+        .tab-button:hover:not(.active-tab) {
+            background-color: #2c2c2c;
+            color: #c9d2de;
+        }
+        .tab-content {
+            background-color: var(--tab-active-bg);
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="g_id_onload"
+         data-client_id="1089606352285-oegf78bnfta4c9ikiofb3qo3c868j3gn.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+
+    <header class="bg-gray-950 shadow-lg py-4 px-6 md:px-10 flex flex-col md:flex-row items-center justify-between sticky top-0 z-50 rounded-b-xl border-b border-gray-800">
+        <div class="flex items-center justify-between w-full md:w-auto mb-4 md:mb-0">
+            <svg class="h-8 md:h-10 text-blue-400" viewBox="0 0 250 50" fill="currentColor">
+                <path d="M10 25C10 18.096 15.029 12.5 21.333 12.5H35.667C41.971 12.5 47 18.096 47 25C47 31.904 41.971 37.5 35.667 37.5H21.333C15.029 37.5 10 31.904 10 25Z" fill="#60A5FA"/>
+                <path d="M17.667 25C17.667 21.066 20.916 17.5 25 17.5C29.084 17.5 32.333 21.066 32.333 25C32.333 28.934 29.084 32.5 25 32.5C20.916 32.5 17.667 28.934 17.667 25Z" fill="#3B82F6"/>
+                <text x="55" y="35" font-family="Inter, sans-serif" font-size="25" font-weight="bold" fill="#60A5FA">PLUTO</text>
+                <text x="140" y="35" font-family="Inter, sans-serif" font-size="25" font-weight="bold" fill="#93C5FD">TRADER</text>
+            </svg>
+            <button id="mobile-menu-button" class="md:hidden text-gray-300 focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+        <nav id="main-nav" class="hidden md:flex flex-col md:flex-row md:space-x-4 mt-4 md:mt-0 w-full md:w-auto items-center absolute md:relative top-0 right-0 h-full md:h-auto bg-gray-900 md:bg-transparent p-6 md:p-0 z-950">
+            <button id="close-mobile-menu-button" class="md:hidden absolute top-4 right-4 text-gray-300 text-3xl focus:outline-none">&times;</button>
+            <a href="#trading-platform" class="text-gray-300 hover:text-blue-400 font-medium nav-link-mature w-full md:w-auto text-center py-3 md:py-2">Platform</a>
+            <a href="#about" class="text-gray-300 hover:text-blue-400 font-medium nav-link-mature w-full md:w-auto text-center py-3 md:py-2">About Us</a>
+            <a href="#services" class="text-gray-300 hover:text-blue-400 font-medium nav-link-mature w-full md:w-auto text-center py-3 md:py-2">Services</a>
+            <a href="#regulation" class="text-gray-300 hover:text-blue-400 font-medium nav-link-mature w-full md:w-auto text-center py-3 md:py-2">Regulation</a>
+            <a href="#contact" class="text-gray-300 hover:text-blue-400 font-medium nav-link-mature w-full md:w-auto text-center py-3 md:py-2">Contact Us</a>
+            <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4 mt-4 md:mt-0 w-full md:w-auto items-center">
+                <button id="login-button-nav" class="bg-blue-600 text-white py-2 px-5 rounded-full hover:bg-blue-700 transition duration-300 shadow-md w-full md:w-auto">
+                    Log In
+                </button>
+                <button id="signup-button-nav" class="bg-green-600 text-white py-2 px-5 rounded-full hover:bg-green-700 transition duration-300 shadow-md w-full md:w-auto">
+                    Sign Up
+                </button>
+                <button id="logout-button-nav" class="bg-gray-700 text-white py-2 px-5 rounded-full hover:bg-gray-600 transition duration-300 shadow-md w-full md:w-auto hidden">
+                    Log Out
+                </button>
+                <button id="theme-toggle" class="bg-gray-700 text-white py-2 px-3 rounded-full hover:bg-gray-600 transition duration-300 shadow-md w-full md:w-auto text-center">
+                    <i class="fas fa-moon"></i> <span class="hidden md:inline">Dark Mode</span>
+                </button>
+            </div>
+        </nav>
+        <div id="mobile-menu-overlay" class="hidden md:hidden"></div>
+    </header>
+
+    <section id="trading-platform" class="flex flex-col lg:flex-row flex-grow p-4 md:p-6 space-y-4 lg:space-y-0 lg:space-x-4">
+        <aside class="bg-gray-950 rounded-xl shadow-lg p-4 w-full lg:w-64 flex-shrink-0 border border-gray-800">
+            <h4 class="text-xl font-bold text-gray-100 mb-4">Tools & Indicators</h4>
+            <ul id="indicator-list" class="space-y-3 text-gray-300">
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="Moving Average"><i class="fas fa-chart-area mr-2"></i> Moving Average</li>
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="Bollinger Bands"><i class="fas fa-chart-bar mr-2"></i> Bollinger Bands</li>
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="RSI"><i class="fas fa-signal mr-2"></i> RSI</li>
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="MACD"><i class="fas fa-sort-amount-up mr-2"></i> MACD</li>
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="Fibonacci Retracement"><i class="fas fa-arrows-alt-h mr-2"></i> Fibonacci Retracement</li>
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="Trend Lines"><i class="fas fa-ruler-horizontal mr-2"></i> Trend Lines</li>
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="Volume"><i class="fas fa-chart-pie mr-2"></i> Volume</li>
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="Stochastic Oscillator"><i class="fas fa-search-dollar mr-2"></i> Stochastic Oscillator</li>
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="ATR"><i class="fas fa-crosshairs mr-2"></i> ATR</li>
+                <li class="hover:text-blue-400 cursor-pointer transition duration-200 flex items-center" data-indicator="Ichimoku Kinko Hyo"><i class="fas fa-compress-arrows-alt mr-2"></i> Ichimoku Kinko Hyo</li>
+            </ul>
+            <div class="mt-6 text-center">
+                <button id="add-new-indicator-button" class="bg-gray-800 text-gray-200 py-2 px-4 rounded-full text-sm hover:bg-gray-700 transition duration-300">
+                    <i class="fas fa-plus mr-2"></i> Add New
+                </button>
+            </div>
+        </aside>
+
+        <div class="flex-grow bg-gray-950 rounded-xl shadow-lg overflow-hidden border border-gray-800">
+            <div class="p-4 bg-gray-900 flex items-center justify-between text-gray-200 rounded-t-xl border-b border-gray-800">
+                <h3 class="text-xl font-bold">EUR/USD Live Chart</h3>
+                <div class="flex items-center space-x-4 text-sm">
+                    <span>Spread: <span class="font-semibold text-green-400">0.5</span></span>
+                    <span>High: <span class="font-semibold" id="chart-high">1.08500</span></span>
+                    <span>Low: <span class="font-semibold" id="chart-low">1.08200</span></span>
+                </div>
+            </div>
+            <div class="tradingview-widget-container w-full h-[500px] md:h-[650px] overflow-hidden rounded-b-xl">
+                <div id="tradingview_chart_main" class="w-full h-full"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                <script type="text/javascript">
+                    // TradingView Widget Initialization for the main chart
+                    let tvWidget = null; // Store widget instance globally
+
+                    function initTradingViewWidget(theme) {
+                        if (tvWidget) {
+                            tvWidget.remove(); // Remove existing widget if it exists
+                        }
+                        tvWidget = new TradingView.widget(
+                            {
+                                "width": "100%",
+                                "height": "100%",
+                                "symbol": "FX_IDC:EURUSD",
+                                "interval": "5", /* 5-minute interval */
+                                "timezone": "Etc/UTC",
+                                "theme": theme, /* This will be set by JS dynamically for light/dark mode */
+                                "style": "1",
+                                "locale": "en",
+                                "toolbar_bg": theme === 'dark' ? "#0a0a0a" : "#f0f2f5", /* Use dynamic color */
+                                "enable_publishing": false,
+                                "allow_symbol_change": true,
+                                "container_id": "tradingview_chart_main",
+                                "studies": [
+                                    "RSI@tv-basic",
+                                    "MACD@tv-basic"
+                                ],
+                                "hide_side_toolbar": true,
+                                "hide_legend": true,
+                                "save_image": false
+                            }
+                        );
+                    }
+                    // Initial call when the script loads
+                    // initTradingViewWidget(localStorage.getItem('theme') || 'dark'); // This will be called from DOMContentLoaded
+                </script>
+            </div>
+        </div>
+
+        <aside class="bg-gray-950 rounded-xl shadow-lg p-4 w-full lg:w-80 flex-shrink-0 border border-gray-800">
+            <h4 class="text-xl font-bold text-gray-100 mb-4">Trading Panel</h4>
+
+            <div id="trading-controls" class="hidden">
+                <div class="bg-gray-900 p-4 rounded-lg mb-6 shadow-sm border border-gray-800">
+                    <p class="text-gray-400 text-sm mb-2">Account Balance:</p>
+                    <p id="account-balance-display" class="text-2xl font-bold text-green-400">$0.00</p>
+                    <p class="text-gray-400 text-sm mt-3 mb-2">Equity:</p>
+                    <p id="equity-display" class="text-xl font-semibold text-blue-400">$0.00</p>
+                    <div class="flex justify-between items-center mt-4 text-sm">
+                        <span class="text-red-400">SELL: <span id="ask-price">1.08355</span></span>
+                        <span class="text-green-400">BUY: <span id="bid-price">1.08345</span></span>
+                    </div>
+                </div>
+
+                <div class="mb-6 space-y-4">
+                    <div>
+                        <label for="order-type" class="block text-gray-400 text-sm font-medium mb-2">Order Type</label>
+                        <select id="order-type" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="market">Market Execution</option>
+                            <option value="limit">Buy/Sell Limit</option>
+                            <option value="stop">Buy/Sell Stop</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="volume" class="block text-gray-400 text-sm font-medium mb-2">Volume (Lots)</label>
+                        <input type="number" id="volume" value="0.01" step="0.01" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div id="entry-price-group" class="hidden">
+                        <label for="entry-price" class="block text-gray-400 text-sm font-medium mb-2">Entry Price</label>
+                        <input type="number" id="entry-price" placeholder="e.g., 1.08300" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="stoploss" class="block text-gray-400 text-sm font-medium mb-2">Stop Loss</label>
+                        <input type="number" id="stoploss" placeholder="e.g., 1.08000" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="takeprofit" class="block text-sm font-medium mb-2">Take Profit</label>
+                        <input type="number" id="takeprofit" placeholder="e.g., 1.09000" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="flex space-x-4 mb-4">
+                    <button id="sell-button" class="flex-1 bg-red-600 text-white py-3 px-6 rounded-full text-lg font-semibold hover:bg-red-700 transition duration-300 shadow-lg transform hover:scale-105">
+                        SELL
+                    </button>
+                    <button id="buy-button" class="flex-1 bg-green-600 text-white py-3 px-6 rounded-full text-lg font-semibold hover:bg-green-700 transition duration-300 shadow-lg transform hover:scale-105">
+                        BUY
+                    </button>
+                </div>
+                <button id="deposit-button" class="w-full bg-blue-600 text-white py-3 px-6 rounded-full hover:bg-blue-700 transition duration-300 shadow-lg transform hover:scale-105 mt-2">
+                    Deposit
+                </button>
+                <button id="withdraw-button" class="w-full bg-indigo-600 text-white py-3 px-6 rounded-full hover:bg-indigo-700 transition duration-300 shadow-lg transform hover:scale-105 mt-2">
+                    Withdraw
+                </button>
+                <button id="close-all-profiting-button" class="w-full bg-purple-600 text-white py-3 px-6 rounded-full hover:bg-purple-700 transition duration-300 shadow-lg transform hover:scale-105 mt-2">
+                    Close All Profiting
+                </button>
+                <button id="close-all-losing-button" class="w-full bg-orange-600 text-white py-3 px-6 rounded-full hover:bg-orange-700 transition duration-300 shadow-lg transform hover:scale-105 mt-2">
+                    Close All Losing
+                </button>
+
+                <div class="mt-8">
+                    <h5 class="text-lg font-bold text-gray-100 mb-3">Transaction History</h5>
+                    <div class="bg-gray-800 p-3 rounded-lg overflow-x-auto text-sm border border-gray-700">
+                        <table class="w-full text-gray-300">
+                            <thead>
+                                <tr class="text-gray-400">
+                                    <th class="py-1 px-2 text-left">Type</th>
+                                    <th class="py-1 px-2 text-left">Amount</th>
+                                    <th class="py-1 px-2 text-left">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-history-body">
+                                <tr><td colspan="3" class="text-center py-2 text-gray-500">No transactions yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="login-required-message" class="text-center text-gray-400 p-4 rounded-lg bg-gray-900 border border-gray-800">
+                Please log in to view account details and place trades.
+            </div>
+
+            <div class="mt-8 text-center text-gray-400 text-sm">
+                <p>Current Bid: <span class="text-green-400 font-bold" id="current-bid">1.08345</span></p>
+                <p>Current Ask: <span class="text-red-400 font-bold" id="current-ask">1.08355</span></p>
+                <p class="mt-2">Minimum Volume: 0.01 lots</p>
+            </div>
+        </aside>
+    </section>
+
+
+    <section id="my-trades-history" class="p-4 md:p-6 mx-auto w-full max-w-7xl hidden">
+        <h3 class="text-3xl font-bold text-gray-100 mb-6 text-center">My Trades & History</h3>
+        <div class="bg-gray-950 rounded-xl shadow-lg border border-gray-800">
+            <div class="flex justify-start border-b border-gray-700">
+                <button id="open-trades-tab" class="tab-button active-tab">Open Trades</button>
+                <button id="closed-trades-tab" class="tab-button">Closed Trades</button>
+            </div>
+
+            <div id="open-trades-content" class="tab-content overflow-x-auto">
+                <table class="w-full text-gray-200 trades-table">
+                    <thead>
+                        <tr>
+                            <th>Trade ID</th>
+                            <th>Type</th>
+                            <th>Volume</th>
+                            <th>Entry Price</th>
+                            <th>Current Price</th>
+                            <th>S/L</th>
+                            <th>T/P</th>
+                            <th>Commission</th>
+                            <th>Swap</th>
+                            <th>P/L</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="open-trades-table-body">
+                        <tr>
+                            <td colspan="11" class="text-center py-4 text-gray-400">No open trades.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="closed-trades-content" class="tab-content hidden overflow-x-auto">
+                <table class="w-full text-gray-200 trades-table">
+                    <thead>
+                        <tr>
+                            <th>Trade ID</th>
+                            <th>Type</th>
+                            <th>Volume</th>
+                            <th>Entry Price</th>
+                            <th>Close Price</th>
+                            <th>Commission</th>
+                            <th>Swap</th>
+                            <th>P/L</th>
+                            <th>Open Time</th>
+                            <th>Close Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="closed-trades-table-body">
+                        <tr>
+                            <td colspan="10" class="text-center py-4 text-gray-400">No closed trades yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+
+    <main class="flex-grow p-6 md:p-10">
+        <section id="market-insights" class="bg-gray-950 rounded-xl shadow-lg p-8 mb-8 text-gray-200 border border-gray-800">
+            <h3 class="text-3xl font-bold text-gray-100 mb-6">Market Insights</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-3 flex items-center"><i class="fas fa-calendar-alt mr-2 text-blue-400"></i> Economic Calendar</h4>
+                    <div class="bg-gray-900 p-4 rounded-lg text-gray-400 border border-gray-800">
+                        <p class="mb-2">Upcoming events affecting EUR/USD:</p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li><span class="font-medium text-gray-200">June 10, 10:00 UTC:</span> EU Industrial Production (High Impact)</li>
+                            <li><span class="font-medium text-gray-200">June 12, 14:30 UTC:</span> US CPI Data (High Impact)</li>
+                            <li><span class="font-medium text-gray-200">June 15, 08:00 UTC:</span> ECB President Lagarde Speech (Medium Impact)</li>
+                        </ul>
+                        <p class="text-sm mt-4 text-center">
+                            <a href="#" class="text-blue-400 hover:underline">View full calendar</a> (external link simulated)
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-3 flex items-center"><i class="fas fa-newspaper mr-2 text-green-400"></i> Latest News</h4>
+                    <div class="bg-gray-900 p-4 rounded-lg text-gray-400 border border-gray-800">
+                        <ul class="space-y-3">
+                            <li>
+                                <p class="font-medium text-gray-200">EUR/USD: Euro gains ground ahead of ECB meeting</p>
+                                <p class="text-xs text-gray-500">2 hours ago - Reuters</p>
+                            </li>
+                            <li>
+                                <p class="font-medium text-gray-200">US Dollar under pressure as inflation concerns persist</p>
+                                <p class="text-xs text-gray-500">4 hours ago - Bloomberg</p>
+                            </li>
+                            <li>
+                                <p class="font-medium text-gray-200">Oil prices dip on demand fears, supply concerns cap losses</p>
+                                <p class="text-xs text-gray-500">Yesterday - Financial Times</p>
+                            </li>
+                        </ul>
+                        <p class="text-sm mt-4 text-center">
+                            <a href="#" class="text-blue-400 hover:underline">Read all news</a> (external link simulated)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="bg-gray-950 rounded-xl shadow-lg p-8 mb-8 text-gray-200 border border-gray-800">
+            <h3 class="text-3xl font-bold text-gray-100 mb-6">About PLUTOTRADER</h3>
+            <p class="leading-relaxed mb-4">
+                PLUTOTRADER offers a premier trading experience. We combine advanced technology with a client-centric approach, empowering traders worldwide.
+            </p>
+            <p class="leading-relaxed">
+                Our platform is built for security, reliability, and optimal performance, ensuring you trade with unparalleled confidence.
+            </p>
+        </section>
+
+        <section id="services" class="bg-gray-950 rounded-xl shadow-lg p-8 mb-8 text-gray-200 border border-gray-800">
+            <h3 class="text-3xl font-bold text-gray-100 mb-6">Our Core Services</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-gray-900 p-6 rounded-lg shadow-md border border-gray-800">
+                    <i class="fas fa-chart-bar text-blue-400 text-3xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-2">Multi-Asset Trading</h4>
+                    <p class="text-gray-400">Trade Forex, Stocks, Indices, Commodities, and Cryptocurrencies.</p>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg shadow-md border border-gray-800">
+                    <i class="fas fa-dollar-sign text-green-400 text-3xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-2">Competitive Spreads</h4>
+                    <p class="text-gray-400">Benefit from tight, stable spreads on all major instruments.</p>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg shadow-md border border-gray-800">
+                    <i class="fas fa-laptop-code text-purple-400 text-3xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-2">Advanced Tools</h4>
+                    <p class="text-gray-400">Access powerful charting, analytical tools, and expert advisors.</p>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg shadow-md border border-gray-800">
+                    <i class="fas fa-headset text-yellow-400 text-3xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-2">Dedicated Support</h4>
+                    <p class="text-gray-400">24/7 multilingual client support, ready to assist you.</p>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg shadow-md border border-gray-800">
+                    <i class="fas fa-mobile-alt text-red-400 text-3xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-2">Mobile & Web Access</h4>
+                    <p class="text-gray-400">Trade anytime, anywhere, on your preferred device.</p>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg shadow-md border border-gray-800">
+                    <i class="fas fa-shield-alt text-blue-400 text-3xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-2">Fund Security</h4>
+                    <p class="text-gray-400">Your funds are protected with segregated accounts and robust measures.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="regulation" class="bg-gray-950 rounded-xl shadow-lg p-8 mb-8 text-gray-200 border border-gray-800">
+            <h3 class="text-3xl font-bold text-gray-100 mb-6">Regulation & Compliance</h3>
+            <p class="leading-relaxed mb-4">
+                PLUTOTRADER operates under stringent global regulatory frameworks, ensuring the highest standards of financial integrity and client protection.
+            </p>
+            <ul class="list-disc list-inside leading-relaxed space-y-2">
+                <li>Regulated by tier-1 financial authorities (placeholder).</li>
+                <li>Strict adherence to Anti-Money Laundering (AML) and Know Your Customer (KYC) protocols.</li>
+                <li>Regular independent audits to ensure transparent operations.</li>
+            </ul>
+            <p class="leading-relaxed mt-4">
+                Your trust and security are paramount. We are fully committed to a secure and compliant trading environment.
+            </p>
+        </section>
+
+        <section id="contact" class="bg-gray-950 rounded-xl shadow-lg p-8 mb-8 text-gray-200 border border-gray-800">
+            <h3 class="text-3xl font-bold text-gray-100 mb-6">Contact PLUTOTRADER Support</h3>
+            <p class="leading-relaxed mb-4">
+                Our dedicated support team is available 24/7 to assist with any inquiries.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-2">General Inquiries</h4>
+                    <p><i class="fas fa-envelope mr-2 text-blue-400"></i> support@plutotrader.com</p>
+                    <p class="mt-2"><i class="fas fa-phone mr-2 text-blue-400"></i> +1 800 987 6543</p>
+                </div>
+                <div>
+                    <h4 class="text-xl font-semibold text-gray-100 mb-2">Live Chat Assistance</h4>
+                    <p>Click the chat icon for instant support.</p>
+                    <button id="open-chat-button" class="mt-4 bg-blue-600 text-white py-2 px-6 rounded-full hover:bg-blue-700 transition duration-300 shadow-md">
+                        Start Live Chat
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-950 text-gray-200 py-8 px-6 md:px-10 mt-8 rounded-t-xl shadow-inner border-t border-gray-800">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h4 class="text-xl font-bold mb-4 text-blue-400">PLUTOTRADER</h4>
+                <p class="text-gray-400 text-sm">
+                    Your trusted global partner for cutting-edge forex and CFD trading.
+                </p>
+                <div class="flex space-x-4 mt-4">
+                    <a href="#" class="text-gray-400 hover:text-blue-400 transition duration-300"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-blue-400 transition duration-300"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-blue-400 transition duration-300"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-blue-400 transition duration-300"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-xl font-bold mb-4 text-blue-400">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="#trading-platform" class="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Platform</a></li>
+                    <li><a href="#about" class="text-gray-400 hover:text-blue-400 text-sm transition duration-300">About Us</a></li>
+                    <li><a href="#services" class="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Services</a></li>
+                    <li><a href="#regulation" class="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Regulation</a></li>
+                    <li><a href="#contact" class="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Contact</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-xl font-bold mb-4 text-blue-400">Risk Warning</h4>
+                <p class="text-gray-400 text-sm">
+                    Trading leveraged products such as Forex and CFDs carries a high level of risk. Ensure you fully understand the risks involved before trading with PLUTOTRADER.
+                </p>
+            </div>
+        </div>
+        <div class="text-center text-gray-500 text-sm mt-8 pt-6 border-t border-gray-700">
+            &copy; 2025 PLUTOTRADER. All rights reserved.
+        </div>
+    </footer>
+
+    <div id="auth-modal" class="auth-modal-overlay hidden">
+        <div class="auth-modal-content">
+            <button id="close-modal-button" class="auth-modal-close-button">&times;</button>
+            <h2 id="modal-title" class="text-2xl font-bold mb-6 text-center text-gray-100">Log In</h2>
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                    <input type="email" id="email" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500" placeholder="your.email@example.com" required>
+                </div>
+                <!-- New Username field for Sign Up -->
+                <div id="username-group" class="hidden">
+                    <label for="username" class="block text-sm font-medium text-gray-400 mb-1">Username</label>
+                    <input type="text" id="username" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500" placeholder="choose a username">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-400 mb-1">Password</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500" placeholder="********" required>
+                </div>
+                <!-- New Confirm Password field for Sign Up -->
+                <div id="confirm-password-group" class="hidden">
+                    <label for="confirm-password" class="block text-sm font-medium text-gray-400 mb-1">Confirm Password</label>
+                    <input type="password" id="confirm-password" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500" placeholder="********">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md">
+                    <span id="form-button-text">Log In</span>
+                </button>
+            </form>
+            <div class="mt-6 text-center">
+                <p class="text-gray-400 text-sm mb-3">Or continue with</p>
+                <div class="g_id_signin"
+                    data-type="standard"
+                    data-size="large"
+                    data-theme="outline"
+                    data-text="signin_with"
+                    data-shape="rectangular"
+                    data-logo_alignment="left">
+                </div>
+            </div>
+            <p class="text-center text-gray-400 text-sm mt-6">
+                <span id="toggle-auth-text">Don't have an account?</span>
+                <button id="toggle-auth-mode" class="text-blue-400 hover:underline ml-1">Sign Up</button>
+            </p>
+        </div>
+    </div>
+
+
+    <div id="deposit-modal" class="auth-modal-overlay hidden">
+        <div class="auth-modal-content">
+            <button id="close-deposit-modal-button" class="auth-modal-close-button">&times;</button>
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-100">Deposit Funds (Bitcoin)</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="deposit-amount" class="block text-sm font-medium text-gray-400 mb-1">Amount to Deposit (USD)</label>
+                    <input type="number" id="deposit-amount" step="100" min="100" value="1000" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label for="bitcoin-address" class="block text-sm font-medium text-gray-400 mb-1">Our Bitcoin Address</label>
+                    <div class="flex items-center">
+                        <input type="text" id="bitcoin-address" value="bc1qxyz..." readonly class="w-full px-4 py-2 rounded-l-lg bg-gray-900 border border-gray-800 text-gray-200">
+                        <button id="copy-bitcoin-address" class="bg-gray-700 text-gray-200 py-2 px-4 rounded-r-lg hover:bg-gray-600 transition duration-300">Copy</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Please send your BTC to this address. Funds will be credited after 3 network confirmations.</p>
+                </div>
+                <button id="proceed-deposit-button" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md">
+                    Proceed with Deposit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="withdraw-modal" class="auth-modal-overlay hidden">
+        <div class="auth-modal-content">
+            <button id="close-withdraw-modal-button" class="auth-modal-close-button">&times;</button>
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-100">Withdraw Funds (Bitcoin)</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="withdraw-amount" class="block text-sm font-medium text-gray-400 mb-1">Amount to Withdraw (USD)</label>
+                    <input type="number" id="withdraw-amount" step="100" min="100" value="1000" class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label for="user-bitcoin-address" class="block text-sm font-medium text-gray-400 mb-1">Your Bitcoin Address</label>
+                    <input type="text" id="user-bitcoin-address" placeholder="e.g., bc1qabc..." class="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 text-gray-200 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    <p class="text-xs text-gray-500 mt-2">Funds will be sent to this address after processing.</p>
+                </div>
+                <button id="proceed-withdraw-button" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300 shadow-md">
+                    Proceed with Withdrawal
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="chat-widget-container">
+        <button id="chat-toggle-button" class="bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700 transition duration-300">
+            <i class="fas fa-comments text-2xl"></i>
+        </button>
+        <div id="chat-popup" class="chat-popup hidden">
+            <div class="chat-header">
+                <span>PLUTOTRADER Support</span>
+                <button id="close-chat-button" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <div id="chat-body" class="chat-body">
+                </div>
+            <div class="chat-footer">
+                <button id="request-live-agent-button" class="w-full bg-yellow-600 text-white py-2 rounded-lg font-semibold hover:bg-yellow-700 transition duration-300 mb-2">
+                    Request Live Agent
+                </button>
+                <div class="flex w-full gap-2">
+                    <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="chat-send-button" class="chat-send-button"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container">
+        </div>
+
+    <button id="back-to-top-btn" class="transition-all duration-300 hidden">
+        <i class="fas fa-arrow-up text-lg"></i>
+    </button>
+
+    <script>
+        // Global state for login and account balance
+        // Load initial state from localStorage if available
+        let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        let accountBalance = parseFloat(localStorage.getItem('accountBalance')) || 10000.00;
+        let equityBalance = parseFloat(localStorage.getItem('equityBalance')) || 10025.50;
+        let openTrades = JSON.parse(localStorage.getItem('openTrades')) || [];
+        let closedTrades = JSON.parse(localStorage.getItem('closedTrades')) || [];
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        // Mock user storage for email/password login
+        let mockUsers = JSON.parse(localStorage.getItem('mockUsers')) || {}; 
+        
+        // --- Added default test user for easier debugging ---
+        if (Object.keys(mockUsers).length === 0) {
+            mockUsers['test@example.com'] = { password: 'password123', username: 'testuser' };
+            localStorage.setItem('mockUsers', JSON.stringify(mockUsers));
+            console.log("Default test user 'test@example.com' with password 'password123' and username 'testuser' added for first run.");
+        }
+        // --- End default test user ---
+
+
+        const contractSize = 100000; // Standard lot size for EUR/USD
+
+        // Simulated real-time prices
+        let currentBid = 1.08345;
+        let currentAsk = 1.08355;
+
+        // Function to simulate price updates
+        function simulatePriceUpdate() {
+            const fluctuation = (Math.random() - 0.5) * 0.00005; // Smaller fluctuation
+            currentBid = parseFloat((currentBid + fluctuation).toFixed(5));
+            currentAsk = parseFloat((currentBid + 0.00010).toFixed(5)); // Maintain a 1-pip spread
+
+            document.getElementById('current-bid').textContent = currentBid.toFixed(5);
+            document.getElementById('current-ask').textContent = currentAsk.toFixed(5);
+            document.getElementById('bid-price').textContent = currentBid.toFixed(5); // For trading panel
+            document.getElementById('ask-price').textContent = currentAsk.toFixed(5); // For trading panel
+            document.getElementById('chart-high').textContent = (currentAsk + 0.0001).toFixed(5); // Simulate some high
+            document.getElementById('chart-low').textContent = (currentBid - 0.0001).toFixed(5); // Simulate some low
+
+            // Update P/L for open trades
+            updateOpenTradesPnL();
+            updateAccountDisplay(); // Update equity based on new P/L
+        }
+
+        // Call price update every 2 seconds
+        setInterval(simulatePriceUpdate, 2000);
+
+
+        // Google Sign-In Callback function
+        window.handleCredentialResponse = (response) => {
+            console.log("Google Sign-In successful!");
+            console.log("Encoded JWT ID token: " + response.credential);
+            // In a real application, you would send this 'response.credential'
+            // to your backend server for verification and user authentication.
+
+            isLoggedIn = true;
+            // For a demo, you could set a default balance or retrieve from a mock user profile
+            // accountBalance = accountBalance || 10000.00; // Ensure balance is initialized if first login
+            // equityBalance = equityBalance || 10025.50;
+            saveStateToLocalStorage();
+            updateAccountDisplay();
+            renderOpenTradesTable();
+            renderClosedTradesTable();
+            renderTransactionHistory();
+            showToast("Logged in with Google successfully!", "success");
+            const authModal = document.getElementById('auth-modal');
+            if (authModal) authModal.classList.add('hidden'); // Hide modal
+            document.querySelector('#trading-platform').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // Function to show a custom toast message
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast-message ${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button class="toast-close-button">&times;</button>
+            `;
+            toastContainer.prepend(toast); // Prepend to show new toasts at the top
+
+            // Trigger reflow to restart animation
+            void toast.offsetWidth;
+
+            toast.style.animation = 'slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards';
+
+            const closeButton = toast.querySelector('.toast-close-button');
+            closeButton.addEventListener('click', () => {
+                toast.style.animation = 'fadeOut 0.5s forwards';
+                toast.addEventListener('animationend', () => toast.remove(), { once: true });
+            });
+
+            // Auto-remove after 5 seconds if not closed manually
+            setTimeout(() => {
+                if (toast.parentNode) { // Check if it hasn't been removed by close button
+                    toast.style.animation = 'fadeOut 0.5s forwards';
+                    toast.addEventListener('animationend', () => toast.remove(), { once: true });
+                }
+            }, 5000);
+        }
+
+        // Function to save current state to localStorage
+        function saveStateToLocalStorage() {
+            localStorage.setItem('isLoggedIn', isLoggedIn);
+            localStorage.setItem('accountBalance', accountBalance.toFixed(2));
+            localStorage.setItem('equityBalance', equityBalance.toFixed(2));
+            localStorage.setItem('openTrades', JSON.stringify(openTrades));
+            localStorage.setItem('closedTrades', JSON.stringify(closedTrades));
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            localStorage.setItem('mockUsers', JSON.stringify(mockUsers)); // Save mock user data
+        }
+
+
+        // Function to update the displayed account balance and equity, and navigation buttons
+        function updateAccountDisplay() {
+            const tradingControls = document.getElementById('trading-controls');
+            const loginRequiredMessage = document.getElementById('login-required-message');
+            const accountBalanceDisplay = document.getElementById('account-balance-display');
+            const equityDisplay = document.getElementById('equity-display');
+            const myTradesHistorySection = document.getElementById('my-trades-history'); // Changed ID
+            const loginButtonNav = document.getElementById('login-button-nav');
+            const signupButtonNav = document.getElementById('signup-button-nav');
+            const logoutButtonNav = document.getElementById('logout-button-nav');
+
+            if (isLoggedIn) {
+                if (tradingControls) tradingControls.classList.remove('hidden');
+                if (loginRequiredMessage) loginRequiredMessage.classList.add('hidden');
+                if (myTradesHistorySection) myTradesHistorySection.classList.remove('hidden'); // New ID
+                
+                if (accountBalanceDisplay) accountBalanceDisplay.textContent = `$${accountBalance.toFixed(2)}`;
+                
+                // Calculate total floating P/L for open trades
+                const floatingPnL = openTrades.reduce((sum, trade) => {
+                    const priceToUse = trade.type === 'BUY' ? currentBid : currentAsk; // Use appropriate price
+                    // Ensure profitLoss is updated for all open trades before summing
+                    if (trade.type === 'BUY') {
+                        trade.profitLoss = (priceToUse - trade.entryPrice) * trade.volume * contractSize;
+                    } else { // SELL
+                        trade.profitLoss = (trade.entryPrice - priceToUse) * trade.volume * contractSize;
+                    }
+                    return sum + trade.profitLoss;
+                }, 0);
+                equityBalance = accountBalance + floatingPnL;
+                if (equityDisplay) equityDisplay.textContent = `$${equityBalance.toFixed(2)}`;
+
+                // Hide login/signup buttons
+                if (loginButtonNav) loginButtonNav.classList.add('hidden');
+                if (signupButtonNav) signupButtonNav.classList.add('hidden');
+                // Show logout button
+                if (logoutButtonNav) logoutButtonNav.classList.remove('hidden');
+
+            } else {
+                if (tradingControls) tradingControls.classList.add('hidden');
+                if (loginRequiredMessage) loginRequiredMessage.classList.remove('hidden');
+                if (myTradesHistorySection) myTradesHistorySection.classList.add('hidden'); // New ID
+
+                // Show login/signup buttons
+                if (loginButtonNav) loginButtonNav.classList.remove('hidden');
+                if (signupButtonNav) signupButtonNav.classList.remove('hidden');
+                // Hide logout button
+                if (logoutButtonNav) logoutButtonNav.classList.add('hidden');
+            }
+            saveStateToLocalStorage(); // Save the new state
+        }
+
+        // Function to update P/L for open trades and re-render the table
+        function updateOpenTradesPnL() {
+            openTrades.forEach(trade => {
+                const priceToUse = trade.type === 'BUY' ? currentBid : currentAsk;
+                if (trade.type === 'BUY') {
+                    trade.profitLoss = (priceToUse - trade.entryPrice) * trade.volume * contractSize;
+                } else { // SELL
+                    trade.profitLoss = (trade.entryPrice - priceToUse) * trade.volume * contractSize;
+                }
+            });
+            renderOpenTradesTable();
+            saveStateToLocalStorage(); // Save updated PnL
+        }
+
+        // Function to render the open trades table
+        function renderOpenTradesTable() {
+            const openTradesTableBody = document.getElementById('open-trades-table-body');
+            if (!openTradesTableBody) return;
+
+            openTradesTableBody.innerHTML = '';
+
+            if (openTrades.length === 0) {
+                const noTradesRow = document.createElement('tr');
+                noTradesRow.innerHTML = `<td colspan="11" class="text-center py-4 text-gray-400">No open trades.</td>`;
+                openTradesTableBody.appendChild(noTradesRow);
+                return;
+            }
+
+            openTrades.forEach(trade => {
+                const row = document.createElement('tr');
+                let profitLossDisplay = '';
+                let profitLossClass = '';
+                
+                if (trade.profitLoss >= 0) {
+                    profitLossDisplay = `$${trade.profitLoss.toFixed(2)}`;
+                    profitLossClass = 'text-green-500'; // Tailwind class for profit
+                } else {
+                    profitLossDisplay = `-$${Math.abs(trade.profitLoss).toFixed(2)}`;
+                    profitLossClass = 'text-red-500'; // Tailwind class for loss
+                }
+
+                // Simulated commission and swap
+                const simulatedCommission = (trade.volume * 7).toFixed(2); // e.g., $7 per lot
+                const simulatedSwap = (trade.volume * (trade.type === 'BUY' ? -0.5 : 0.2)).toFixed(2); // Simulated positive/negative swap
+
+                row.innerHTML = `
+                    <td>${trade.id}</td>
+                    <td><span class="${trade.type === 'BUY' ? 'text-green-500' : 'text-red-500'}">${trade.type}</span></td>
+                    <td>${trade.volume.toFixed(2)}</td>
+                    <td>${trade.entryPrice.toFixed(5)}</td>
+                    <td>${trade.type === 'BUY' ? currentBid.toFixed(5) : currentAsk.toFixed(5)}</td>
+                    <td>${trade.stopLoss || 'N/A'}</td>
+                    <td>${trade.takeProfit || 'N/A'}</td>
+                    <td>$${simulatedCommission}</td>
+                    <td>$${simulatedSwap}</td>
+                    <td class="${profitLossClass}">${profitLossDisplay}</td>
+                    <td><button class="bg-blue-500 text-white px-3 py-1 rounded-md text-xs hover:bg-blue-600 transition-colors close-button" data-trade-id="${trade.id}">Close</button></td>
+                `;
+                openTradesTableBody.appendChild(row);
+            });
+
+            openTradesTableBody.querySelectorAll('.close-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const tradeId = e.target.dataset.tradeId;
+                    closeTrade(tradeId);
+                });
+            });
+        }
+
+        // Function to render the closed trades table
+        function renderClosedTradesTable() {
+            const closedTradesTableBody = document.getElementById('closed-trades-table-body');
+            if (!closedTradesTableBody) return;
+
+            closedTradesTableBody.innerHTML = '';
+
+            if (closedTrades.length === 0) {
+                const noClosedTradesRow = document.createElement('tr');
+                noClosedTradesRow.innerHTML = `<td colspan="10" class="text-center py-4 text-gray-400">No closed trades yet.</td>`;
+                closedTradesTableBody.appendChild(noClosedTradesRow);
+                return;
+            }
+
+            closedTrades.forEach(trade => {
+                const row = document.createElement('tr');
+                let profitLossDisplay = '';
+                let profitLossClass = '';
+                
+                if (trade.profitLoss >= 0) {
+                    profitLossDisplay = `$${trade.profitLoss.toFixed(2)}`;
+                    profitLossClass = 'text-green-500';
+                } else {
+                    profitLossDisplay = `-$${Math.abs(trade.profitLoss).toFixed(2)}`;
+                    profitLossClass = 'text-red-500';
+                }
+
+                // Simulated commission and swap (from when it was open)
+                const simulatedCommission = (trade.volume * 7).toFixed(2);
+                const simulatedSwap = (trade.volume * (trade.type === 'BUY' ? -0.5 : 0.2)).toFixed(2);
+
+                row.innerHTML = `
+                    <td>${trade.id}</td>
+                    <td><span class="${trade.type === 'BUY' ? 'text-green-500' : 'text-red-500'}">${trade.type}</span></td>
+                    <td>${trade.volume.toFixed(2)}</td>
+                    <td>${trade.entryPrice.toFixed(5)}</td>
+                    <td>${trade.closePrice ? trade.closePrice.toFixed(5) : 'N/A'}</td>
+                    <td>$${simulatedCommission}</td>
+                    <td>$${simulatedSwap}</td>
+                    <td class="${profitLossClass}">${profitLossDisplay}</td>
+                    <td>${trade.openTime ? new Date(trade.openTime).toLocaleString() : 'N/A'}</td>
+                    <td>${trade.closeTime ? new Date(trade.closeTime).toLocaleString() : 'N/A'}</td>
+                `;
+                closedTradesTableBody.appendChild(row);
+            });
+            saveStateToLocalStorage(); // Save closed trades state
+        }
+
+        // Function to render transaction history
+        function renderTransactionHistory() {
+            const transactionHistoryBody = document.getElementById('transaction-history-body');
+            if (!transactionHistoryBody) return;
+
+            transactionHistoryBody.innerHTML = '';
+
+            if (transactions.length === 0) {
+                const noTransactionsRow = document.createElement('tr');
+                noTransactionsRow.innerHTML = `<td colspan="3" class="text-center py-2 text-gray-500">No transactions yet.</td>`;
+                transactionHistoryBody.appendChild(noTransactionsRow);
+                return;
+            }
+
+            transactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                const amountClass = transaction.type === 'Deposit' ? 'text-green-400' : 'text-red-400';
+                row.innerHTML = `
+                    <td class="py-1 px-2">${transaction.type}</td>
+                    <td class="py-1 px-2 ${amountClass}">$${transaction.amount.toFixed(2)}</td>
+                    <td class="py-1 px-2">${new Date(transaction.timestamp).toLocaleString()}</td>
+                `;
+                transactionHistoryBody.appendChild(row);
+            });
+            saveStateToLocalStorage(); // Save transaction history
+        }
+
+
+        // Function to close a single trade
+        function closeTrade(tradeId) {
+            const tradeIndex = openTrades.findIndex(trade => trade.id == tradeId);
+            if (tradeIndex > -1) {
+                const trade = openTrades[tradeIndex];
+                
+                const priceToUse = trade.type === 'BUY' ? currentBid : currentAsk;
+                if (trade.type === 'BUY') {
+                    trade.profitLoss = (priceToUse - trade.entryPrice) * trade.volume * contractSize;
+                } else { // SELL
+                    trade.profitLoss = (trade.entryPrice - priceToUse) * trade.volume * contractSize;
+                }
+                trade.status = 'Closed';
+                trade.closePrice = priceToUse;
+                trade.closeTime = Date.now();
+
+                accountBalance += trade.profitLoss;
+                // Move trade from open to closed
+                closedTrades.unshift(trade); // Add to the beginning for latest first
+                openTrades.splice(tradeIndex, 1);
+                
+                updateAccountDisplay();
+                showToast(`Trade ${trade.id} Closed! P/L: $${trade.profitLoss.toFixed(2)}.`, trade.profitLoss >= 0 ? 'success' : 'error');
+                renderOpenTradesTable();
+                renderClosedTradesTable(); // Re-render closed trades table
+                saveStateToLocalStorage(); // Save state after closing trade
+            }
+        }
+
+        // Function to close all profiting trades
+        function closeAllProfitingTrades() {
+            if (!isLoggedIn) {
+                showToast("Please log in to close trades.", "info");
+                return;
+            }
+            let closedCount = 0;
+            let totalProfit = 0;
+            // Create a copy of openTrades to iterate over while modifying the original
+            const tradesToClose = openTrades.filter(trade => {
+                const priceToUse = trade.type === 'BUY' ? currentBid : currentAsk;
+                if (trade.type === 'BUY') {
+                    trade.profitLoss = (priceToUse - trade.entryPrice) * trade.volume * contractSize;
+                } else { // SELL
+                    trade.profitLoss = (trade.entryPrice - priceToUse) * trade.volume * contractSize;
+                }
+                return trade.profitLoss > 0;
+            });
+
+            tradesToClose.forEach(tradeToClose => {
+                const tradeIndex = openTrades.findIndex(trade => trade.id === tradeToClose.id);
+                if (tradeIndex > -1) {
+                    const trade = openTrades[tradeIndex];
+                    trade.status = 'Closed';
+                    trade.closePrice = (trade.type === 'BUY' ? currentBid : currentAsk);
+                    trade.closeTime = Date.now();
+                    accountBalance += trade.profitLoss;
+                    totalProfit += trade.profitLoss;
+                    closedTrades.unshift(trade); // Add to closed
+                    openTrades.splice(tradeIndex, 1); // Remove from open
+                    closedCount++;
+                }
+            });
+
+            if (closedCount > 0) {
+                updateAccountDisplay();
+                showToast(`${closedCount} profiting trades closed. Total Profit: $${totalProfit.toFixed(2)}.`, "success");
+                renderOpenTradesTable();
+                renderClosedTradesTable();
+                saveStateToLocalStorage();
+            } else {
+                showToast("No profiting trades to close.", "info");
+            }
+        }
+
+        // Function to close all losing trades
+        function closeAllLosingTrades() {
+            if (!isLoggedIn) {
+                showToast("Please log in to close trades.", "info");
+                return;
+            }
+            let closedCount = 0;
+            let totalLoss = 0;
+            // Create a copy of openTrades to iterate over while modifying the original
+            const tradesToClose = openTrades.filter(trade => {
+                const priceToUse = trade.type === 'BUY' ? currentBid : currentAsk;
+                if (trade.type === 'BUY') {
+                    trade.profitLoss = (priceToUse - trade.entryPrice) * trade.volume * contractSize;
+                } else { // SELL
+                    trade.profitLoss = (trade.entryPrice - priceToUse) * trade.volume * contractSize;
+                }
+                return trade.profitLoss < 0;
+            });
+
+            tradesToClose.forEach(tradeToClose => {
+                const tradeIndex = openTrades.findIndex(trade => trade.id === tradeToClose.id);
+                if (tradeIndex > -1) {
+                    const trade = openTrades[tradeIndex];
+                    trade.status = 'Closed';
+                    trade.closePrice = (trade.type === 'BUY' ? currentBid : currentAsk);
+                    trade.closeTime = Date.now();
+                    accountBalance += trade.profitLoss; // P/L is negative, so it correctly reduces balance
+                    totalLoss += trade.profitLoss;
+                    closedTrades.unshift(trade); // Add to closed
+                    openTrades.splice(tradeIndex, 1); // Remove from open
+                    closedCount++;
+                }
+            });
+
+            if (closedCount > 0) {
+                updateAccountDisplay();
+                showToast(`${closedCount} losing trades closed. Total Loss: $${totalLoss.toFixed(2)}.`, "error");
+                renderOpenTradesTable();
+                renderClosedTradesTable();
+                saveStateToLocalStorage();
+            } else {
+                showToast("No losing trades to close.", "info");
+            }
+        }
+
+
+        // Function to handle logout
+        function handleLogout() {
+            isLoggedIn = false;
+            // Optionally, reset user-specific data on logout if you want a fresh start
+            // For a real app, this would be handled on the server
+            // accountBalance = 10000.00; 
+            // equityBalance = 10025.50; 
+            // openTrades = []; 
+            // closedTrades = []; 
+            // transactions = []; 
+
+            saveStateToLocalStorage(); // Save the logged-out state
+            updateAccountDisplay(); // Update UI to reflect logged-out state
+            renderOpenTradesTable(); // Clear open trades table
+            renderClosedTradesTable(); // Clear closed trades table
+            renderTransactionHistory(); // Clear transactions table
+            showToast("You have been logged out.", "info");
+            document.querySelector('body').scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+        // Ensure all DOM content is loaded before executing script
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Theme toggle logic
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            // Function to apply theme
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.body.classList.remove('light-mode');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i> <span class="hidden md:inline">Dark Mode</span>';
+                } else {
+                    document.body.classList.add('light-mode');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i> <span class="hidden md:inline">Light Mode</span>';
+                }
+                localStorage.setItem('theme', theme);
+                // Re-initialize TradingView widget to apply theme
+                initTradingViewWidget(theme);
+            }
+
+            // Initial theme load
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme); // Call it once to set initial theme and init TV widget
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+                    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+                });
+            }
+
+            // Initial update of account display based on isLoggedIn state
+            updateAccountDisplay();
+            simulatePriceUpdate(); // Initial price set
+
+            // Smooth scrolling for navigation links and active state highlighting
+            const navLinks = document.querySelectorAll('#main-nav a[href^="#"]');
+            const sections = document.querySelectorAll('main section, #trading-platform, #my-trades-history'); // All main content sections
+
+            function highlightNavLink() {
+                let currentSectionId = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 100; // Offset for sticky header
+                    const sectionBottom = sectionTop + section.offsetHeight;
+                    if (window.scrollY >= sectionTop && window.scrollY < sectionBottom) {
+                        currentSectionId = section.id;
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('nav-link-active');
+                    if (link.getAttribute('href').substring(1) === currentSectionId) {
+                        link.classList.add('nav-link-active');
+                    }
+                });
+            }
+
+            // Initial highlight on load
+            highlightNavLink();
+            // Highlight on scroll
+            window.addEventListener('scroll', highlightNavLink);
+
+            navLinks.forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    // Close mobile menu if open
+                    const mainNav = document.getElementById('main-nav');
+                    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+                    if (mainNav.classList.contains('active')) {
+                        mainNav.classList.remove('active');
+                        mobileMenuOverlay.classList.remove('active');
+                    }
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mainNav = document.getElementById('main-nav');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const closeMobileMenuButton = document.getElementById('close-mobile-menu-button');
+
+
+            if (mobileMenuButton && mainNav && mobileMenuOverlay && closeMobileMenuButton) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mainNav.classList.add('active');
+                    mobileMenuOverlay.classList.add('active');
+                    // Prevent scrolling on body when menu is open
+                    document.body.style.overflow = 'hidden';
+                });
+
+                closeMobileMenuButton.addEventListener('click', () => {
+                    mainNav.classList.remove('active');
+                    mobileMenuOverlay.classList.remove('active');
+                    document.body.style.overflow = ''; // Restore scrolling
+                });
+
+                mobileMenuOverlay.addEventListener('click', (e) => {
+                    // Only close if clicked directly on the overlay, not its children
+                    if (e.target === mobileMenuOverlay) {
+                        mainNav.classList.remove('active');
+                        mobileMenuOverlay.classList.remove('active');
+                        document.body.style.overflow = ''; // Restore scrolling
+                    }
+                });
+            }
+
+
+            // Auth Modal Logic
+            const authModal = document.getElementById('auth-modal');
+            const closeModalButton = document.getElementById('close-modal-button');
+            const loginButtons = document.querySelectorAll('#login-button-nav');
+            const signupButtons = document.querySelectorAll('#signup-button-nav, #signup-button-hero');
+            const modalTitle = document.getElementById('modal-title');
+            const formButtonText = document.getElementById('form-button-text');
+            const toggleAuthMode = document.getElementById('toggle-auth-mode');
+            const toggleAuthText = document.getElementById('toggle-auth-text');
+            const authForm = document.getElementById('auth-form');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            // New: Get username and confirm password inputs
+            const usernameGroup = document.getElementById('username-group');
+            const usernameInput = document.getElementById('username');
+            const confirmPasswordGroup = document.getElementById('confirm-password-group');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+
+
+            // Get the newly added logout button
+            const logoutButtonNav = document.getElementById('logout-button-nav');
+
+
+            if (authModal && closeModalButton && modalTitle && formButtonText && toggleAuthMode && toggleAuthText && authForm) {
+                let isLoginMode = true;
+
+                function showAuthForm(isLogin = true) {
+                    isLoginMode = isLogin;
+                    if (isLoginMode) {
+                        modalTitle.textContent = 'Log In';
+                        formButtonText.textContent = 'Log In';
+                        toggleAuthText.textContent = "Don't have an account?";
+                        toggleAuthMode.textContent = "Sign Up";
+                        // Hide signup-specific fields for login
+                        if (usernameGroup) usernameGroup.classList.add('hidden');
+                        if (confirmPasswordGroup) confirmPasswordGroup.classList.add('hidden');
+                        // Ensure password is not required for confirm on login
+                        if (usernameInput) usernameInput.required = false;
+                        if (confirmPasswordInput) confirmPasswordInput.required = false;
+
+                    } else {
+                        modalTitle.textContent = 'Sign Up';
+                        formButtonText.textContent = 'Sign Up';
+                        toggleAuthText.textContent = "Already have an account?";
+                        toggleAuthMode.textContent = "Log In";
+                        // Show signup-specific fields for signup
+                        if (usernameGroup) usernameGroup.classList.remove('hidden');
+                        if (confirmPasswordGroup) confirmPasswordGroup.classList.remove('hidden');
+                        // Set required for signup fields
+                        if (usernameInput) usernameInput.required = true;
+                        if (confirmPasswordInput) confirmPasswordInput.required = true;
+                    }
+                    authModal.classList.remove('hidden');
+                    // Clear inputs on modal open
+                    emailInput.value = '';
+                    passwordInput.value = '';
+                    // Clear new inputs too
+                    if (usernameInput) usernameInput.value = '';
+                    if (confirmPasswordInput) confirmPasswordInput.value = '';
+                }
+
+                loginButtons.forEach(button => {
+                    button.addEventListener('click', () => showAuthForm(true));
+                });
+
+                signupButtons.forEach(button => {
+                    button.addEventListener('click', () => showAuthForm(false));
+                });
+
+                closeModalButton.addEventListener('click', () => {
+                    authModal.classList.add('hidden');
+                });
+
+                authModal.addEventListener('click', (e) => {
+                    if (e.target === authModal) { // Close if clicked outside modal content
+                        authModal.classList.add('hidden');
+                    }
+                });
+
+                toggleAuthMode.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent default button behavior
+                    showAuthForm(!isLoginMode);
+                });
+
+                authForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = emailInput.value.trim();
+                    const password = passwordInput.value.trim();
+                    const username = usernameInput ? usernameInput.value.trim() : ''; // Get username if element exists
+                    const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value.trim() : ''; // Get confirm password if element exists
+
+                    console.log(`--- Form Submission Attempt ---`);
+                    console.log(`Mode: ${isLoginMode ? 'Login' : 'Signup'}`);
+                    console.log(`Email: ${email}`);
+                    console.log(`Password (entered): ${password}`);
+                    if (!isLoginMode) {
+                        console.log(`Username (entered): ${username}`);
+                        console.log(`Confirm Password (entered): ${confirmPassword}`);
+                    }
+                    console.log(`Current mockUsers state: `, JSON.parse(localStorage.getItem('mockUsers') || '{}'));
+
+
+                    if (!email || !password) {
+                        showToast("Please enter both email and password.", "error");
+                        console.log("Error: Email or password missing.");
+                        return;
+                    }
+
+                    if (isLoginMode) {
+                        // Login logic
+                        // Check if the email exists in mockUsers
+                        if (!mockUsers[email]) {
+                            showToast("You don't have an account with this email. Please sign up.", "info");
+                            console.log("Login failed: Email not registered.");
+                            return;
+                        }
+
+                        // If email exists, check if password matches
+                        if (mockUsers[email].password === password) {
+                            isLoggedIn = true;
+                            showToast("Logged in successfully!", "success");
+                            authModal.classList.add('hidden');
+                            updateAccountDisplay();
+                            renderOpenTradesTable();
+                            renderClosedTradesTable();
+                            renderTransactionHistory();
+                            document.querySelector('#trading-platform').scrollIntoView({ behavior: 'smooth' });
+                            console.log("Login successful!");
+                        } else {
+                            showToast("Incorrect password. Please try again.", "error");
+                            console.log("Login failed: Incorrect password.");
+                        }
+                    } else {
+                        // Signup logic
+                        if (!username) {
+                            showToast("Please enter a username.", "error");
+                            console.log("Signup failed: Username missing.");
+                            return;
+                        }
+                        if (password !== confirmPassword) {
+                            showToast("Passwords do not match. Please try again.", "error");
+                            console.log("Signup failed: Passwords do not match.");
+                            return;
+                        }
+                        // Check if email or username already exists in mockUsers
+                        const emailExists = Object.keys(mockUsers).includes(email);
+                        const usernameExists = Object.values(mockUsers).some(user => user.username === username);
+
+                        if (emailExists) {
+                            showToast("This email is already registered. Please log in.", "error");
+                            console.log("Signup failed: Email already registered.");
+                        } else if (usernameExists) {
+                            showToast("This username is already taken. Please choose another one.", "error");
+                            console.log("Signup failed: Username already taken.");
+                        }
+                        else {
+                            mockUsers[email] = { password: password, username: username }; // Store email, password, and username
+                            saveStateToLocalStorage();
+                            isLoggedIn = true; // Log in the new user immediately
+                            showToast("Account created and logged in successfully!", "success");
+                            authModal.classList.add('hidden');
+                            updateAccountDisplay();
+                            renderOpenTradesTable();
+                            renderClosedTradesTable();
+                            renderTransactionHistory();
+                            document.querySelector('#trading-platform').scrollIntoView({ behavior: 'smooth' });
+                            console.log("Account created and logged in successfully!");
+                        }
+                    }
+                });
+            }
+
+            // Attach event listener for the new logout button
+            if (logoutButtonNav) {
+                logoutButtonNav.addEventListener('click', handleLogout);
+            }
+
+
+            // Chat Widget Logic
+            const chatToggleButton = document.getElementById('chat-toggle-button');
+            const chatPopup = document.getElementById('chat-popup');
+            const closeChatButton = document.getElementById('close-chat-button');
+            const openChatButton = document.getElementById('open-chat-button');
+            const chatInput = document.getElementById('chat-input');
+            const chatSendButton = document.getElementById('chat-send-button');
+            const chatBody = document.getElementById('chat-body');
+            const requestLiveAgentButton = document.getElementById('request-live-agent-button');
+
+            let chatHistory = [];
+
+            function addChatMessage(message, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = message;
+                if (sender === 'user') {
+                    messageDiv.classList.add('chat-message-user');
+                    chatHistory.push({ role: "user", parts: [{ text: message }] });
+                } else {
+                    messageDiv.classList.add('chat-message-agent');
+                    chatHistory.push({ role: "model", parts: [{ text: message }] });
+                }
+                chatBody.appendChild(messageDiv);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            async function sendMessageToGemini(prompt) {
+                const lowerCasePrompt = prompt.toLowerCase();
+                const isLiveAgentRequest =
+                    lowerCasePrompt.includes('live agent') ||
+                    lowerCasePrompt.includes('human help') ||
+                    lowerCasePrompt.includes('speak to someone') ||
+                    lowerCasePrompt.includes('real person');
+
+                if (isLiveAgentRequest) {
+                    addChatMessage(prompt, 'user');
+                    chatInput.value = '';
+                    addChatMessage("Thank you for your patience. A live agent will be joining our conversation shortly to assist you further. Please provide your account ID or email for faster service.", 'agent');
+                    return;
+                }
+
+                addChatMessage(prompt, 'user');
+                chatInput.value = '';
+
+                const loadingDiv = document.createElement('div');
+                loadingDiv.classList.add('chat-message-agent');
+                loadingDiv.innerHTML = '<span class="chat-loading-indicator"></span> Typing...';
+                chatBody.appendChild(loadingDiv);
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+                try {
+                    const payload = { contents: chatHistory };
+                    // --- IMPORTANT: REPLACE WITH YOUR ACTUAL GOOGLE GEMINI API KEY HERE ---
+                    // Example: const apiKey = "AIzaSyC_YOUR_KEY_HERE";
+                    const apiKey = ""; // Leave as empty string if Canvas is to auto-provide
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    
+                    chatBody.removeChild(loadingDiv);
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const aiText = result.candidates[0].content.parts[0].text;
+                        addChatMessage(aiText, 'agent');
+                    } else {
+                        addChatMessage("Sorry, I couldn't get a response. Please try again.", 'agent');
+                        console.error("Gemini API response structure unexpected:", result);
+                    }
+                } catch (error) {
+                    chatBody.removeChild(loadingDiv);
+                    addChatMessage("There was an error connecting to the support agent. Please try again later.", 'agent');
+                    console.error("Error calling Gemini API:", error);
+                }
+            }
+
+            if (chatToggleButton && chatPopup && closeChatButton && openChatButton && chatInput && chatSendButton && chatBody && requestLiveAgentButton) {
+                chatToggleButton.addEventListener('click', () => {
+                    chatPopup.classList.toggle('hidden');
+                });
+
+                closeChatButton.addEventListener('click', () => {
+                    chatPopup.classList.add('hidden');
+                });
+
+                openChatButton.addEventListener('click', () => {
+                    chatPopup.classList.remove('hidden');
+                    chatPopup.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                });
+
+                chatSendButton.addEventListener('click', () => {
+                    const message = chatInput.value.trim();
+                    if (message) {
+                        sendMessageToGemini(message);
+                    }
+                });
+
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const message = chatInput.value.trim();
+                        if (message) {
+                            sendMessageToGemini(message);
+                        }
+                    }
+                });
+
+                requestLiveAgentButton.addEventListener('click', () => {
+                    sendMessageToGemini("I need to speak to a live agent immediately. Please connect me.");
+                });
+
+                // Initial chat message from agent if chat history is empty
+                if (chatHistory.length === 0 || chatHistory[0].role !== "model") {
+                     addChatMessage("Hello! How can I help with your PLUTOTRADER account or platform questions?", 'agent');
+                }
+            }
+
+            // Deposit Modal Logic
+            const depositButton = document.getElementById('deposit-button');
+            const depositModal = document.getElementById('deposit-modal');
+            const closeDepositModalButton = document.getElementById('close-deposit-modal-button');
+            const bitcoinAddressInput = document.getElementById('bitcoin-address');
+            const copyBitcoinAddressButton = document.getElementById('copy-bitcoin-address');
+            const proceedDepositButton = document.getElementById('proceed-deposit-button');
+
+            if (depositButton && depositModal && closeDepositModalButton && bitcoinAddressInput && copyBitcoinAddressButton && proceedDepositButton) {
+                depositButton.addEventListener('click', () => {
+                    if (!isLoggedIn) {
+                        showToast("Please log in to deposit funds.", "info");
+                        return;
+                    }
+                    depositModal.classList.remove('hidden');
+                });
+
+                closeDepositModalButton.addEventListener('click', () => {
+                    depositModal.classList.add('hidden');
+                });
+
+                depositModal.addEventListener('click', (e) => {
+                    if (e.target === depositModal) {
+                        depositModal.classList.add('hidden');
+                    }
+                });
+
+                copyBitcoinAddressButton.addEventListener('click', () => {
+                    bitcoinAddressInput.select();
+                    bitcoinAddressInput.setSelectionRange(0, 99999);
+
+                    document.execCommand('copy');
+                    showToast("Bitcoin address copied to clipboard!", "info");
+                });
+
+                proceedDepositButton.addEventListener('click', () => {
+                    const amount = parseFloat(document.getElementById('deposit-amount').value);
+                    if (amount > 0) {
+                        accountBalance += amount;
+                        equityBalance += amount; // Assuming equity also increases with deposit
+                        transactions.unshift({type: 'Deposit', amount: amount, timestamp: Date.now()});
+                        updateAccountDisplay();
+                        renderTransactionHistory();
+                        showToast(`Deposit of $${amount.toFixed(2)} processed!`, "success");
+                        depositModal.classList.add('hidden');
+                        saveStateToLocalStorage();
+                    } else {
+                        showToast("Please enter a valid deposit amount.", "error");
+                    }
+                });
+            }
+
+            // Withdrawal Modal Logic
+            const withdrawButton = document.getElementById('withdraw-button');
+            const withdrawModal = document.getElementById('withdraw-modal');
+            const closeWithdrawModalButton = document.getElementById('close-withdraw-modal-button');
+            const withdrawAmountInput = document.getElementById('withdraw-amount');
+            const userBitcoinAddressInput = document.getElementById('user-bitcoin-address');
+            const proceedWithdrawButton = document.getElementById('proceed-withdraw-button');
+
+            if (withdrawButton && withdrawModal && closeWithdrawModalButton && withdrawAmountInput && userBitcoinAddressInput && proceedWithdrawButton) {
+                withdrawButton.addEventListener('click', () => {
+                    if (!isLoggedIn) {
+                        showToast("Please log in to withdraw funds.", "info");
+                        return;
+                    }
+                    withdrawModal.classList.remove('hidden');
+                });
+
+                closeWithdrawModalButton.addEventListener('click', () => {
+                    withdrawModal.classList.add('hidden');
+                });
+
+                withdrawModal.addEventListener('click', (e) => {
+                    if (e.target === withdrawModal) {
+                        withdrawModal.classList.add('hidden');
+                    }
+                });
+
+                proceedWithdrawButton.addEventListener('click', () => {
+                    const amount = parseFloat(withdrawAmountInput.value);
+                    const userBitcoinAddress = userBitcoinAddressInput.value.trim();
+
+                    if (isNaN(amount) || amount <= 0) {
+                        showToast("Please enter a valid withdrawal amount.", "error");
+                        return;
+                    }
+                    if (amount > accountBalance) {
+                        showToast(`Insufficient balance. Your current balance is $${accountBalance.toFixed(2)}.`, "error");
+                        return;
+                    }
+                    if (!userBitcoinAddress) {
+                        showToast("Please enter your Bitcoin address.", "error");
+                        return;
+                    }
+                    // Basic Bitcoin address validation (very simplified for demo)
+                    if (userBitcoinAddress.length < 26 || userBitcoinAddress.length > 35 || (!userBitcoinAddress.startsWith('bc1') && !userBitcoinAddress.startsWith('1') && !userBitcoinAddress.startsWith('3'))) {
+                         showToast("Please enter a valid Bitcoin address format.", "error");
+                         return;
+                    }
+
+
+                    accountBalance -= amount;
+                    equityBalance -= amount; // Assuming equity also decreases with withdrawal
+                    transactions.unshift({type: 'Withdrawal', amount: amount, timestamp: Date.now()});
+                    updateAccountDisplay();
+                    renderTransactionHistory();
+                    showToast(`Withdrawal of $${amount.toFixed(2)} to ${userBitcoinAddress} is being processed!`, "success");
+                    withdrawModal.classList.add('hidden');
+                    saveStateToLocalStorage();
+                });
+            }
+
+            // Trading Functionality (Buy/Sell)
+            const buyButton = document.getElementById('buy-button');
+            const sellButton = document.getElementById('sell-button');
+            const volumeInput = document.getElementById('volume');
+            const orderTypeSelect = document.getElementById('order-type');
+            const entryPriceGroup = document.getElementById('entry-price-group');
+            const entryPriceInput = document.getElementById('entry-price');
+            const stopLossInput = document.getElementById('stoploss');
+            const takeProfitInput = document.getElementById('takeprofit');
+
+            // Toggle visibility of Entry Price based on Order Type
+            if (orderTypeSelect && entryPriceGroup) {
+                orderTypeSelect.addEventListener('change', () => {
+                    if (orderTypeSelect.value === 'market') {
+                        entryPriceGroup.classList.add('hidden');
+                    } else {
+                        entryPriceGroup.classList.remove('hidden');
+                        // Pre-fill entry price for pending orders to current market for convenience
+                        entryPriceInput.value = (orderTypeSelect.value === 'limit' ? currentBid : currentAsk).toFixed(5);
+                    }
+                });
+            }
+
+
+            if (buyButton && sellButton && volumeInput && stopLossInput && takeProfitInput) {
+                buyButton.addEventListener('click', () => {
+                    if (!isLoggedIn) {
+                        showToast("Please log in to place trades.", "info");
+                        return;
+                    }
+                    const volume = parseFloat(volumeInput.value);
+                    const orderType = orderTypeSelect.value;
+                    const entryPrice = parseFloat(entryPriceInput.value) || (orderType === 'market' ? currentBid : null);
+                    const stopLoss = stopLossInput.value.trim();
+                    const takeProfit = takeProfitInput.value.trim();
+                    const currentMarketPrice = currentBid; // For BUY, use Bid price for market orders
+
+                    if (isNaN(volume) || volume <= 0) {
+                        showToast("Please enter a valid trade volume.", "error");
+                        return;
+                    }
+
+                    if (orderType !== 'market' && (isNaN(entryPrice) || entryPrice <= 0)) {
+                        showToast("Please enter a valid entry price for pending orders.", "error");
+                        return;
+                    }
+
+                    if (accountBalance < volume * 100) { // Simple margin check (e.g., $100 per 0.01 lot)
+                         showToast(`Insufficient funds for this trade volume. Requires $${(volume * 100).toFixed(2)} margin.`, "error");
+                         return;
+                    }
+
+                    const trade = {
+                        id: Date.now(),
+                        type: 'BUY',
+                        volume: volume,
+                        entryPrice: orderType === 'market' ? currentMarketPrice : entryPrice,
+                        stopLoss: stopLoss,
+                        takeProfit: takeProfit,
+                        status: orderType === 'market' ? 'Open' : 'Pending',
+                        profitLoss: 0,
+                        openTime: Date.now(),
+                        closeTime: null,
+                        closePrice: null
+                    };
+
+                    if (orderType === 'market') {
+                        openTrades.unshift(trade);
+                        // accountBalance -= (volume * 10); // Simulate margin deduction, but P/L simulation covers this
+                        showToast(`BUY Market Order placed for EUR/USD, ${volume.toFixed(2)} lots.`, "success");
+                    } else {
+                        // For a real broker, pending orders don't immediately affect balance/equity
+                        // but they are stored on the server to be triggered
+                        openTrades.unshift(trade); // Still add to open trades for UI tracking
+                        showToast(`BUY ${orderType.toUpperCase()} order placed for EUR/USD, ${volume.toFixed(2)} lots at ${entryPrice.toFixed(5)}.`, "success");
+                    }
+                    
+                    updateAccountDisplay();
+                    renderOpenTradesTable();
+                    saveStateToLocalStorage();
+                });
+
+                sellButton.addEventListener('click', () => {
+                    if (!isLoggedIn) {
+                        showToast("Please log in to place trades.", "info");
+                        return;
+                    }
+                    const volume = parseFloat(volumeInput.value);
+                    const orderType = orderTypeSelect.value;
+                    const entryPrice = parseFloat(entryPriceInput.value) || (orderType === 'market' ? currentAsk : null);
+                    const stopLoss = stopLossInput.value.trim();
+                    const takeProfit = takeProfitInput.value.trim();
+                    const currentMarketPrice = currentAsk; // For SELL, use Ask price for market orders
+
+                    if (isNaN(volume) || volume <= 0) {
+                        showToast("Please enter a valid trade volume.", "error");
+                        return;
+                    }
+
+                    if (orderType !== 'market' && (isNaN(entryPrice) || entryPrice <= 0)) {
+                        showToast("Please enter a valid entry price for pending orders.", "error");
+                        return;
+                    }
+
+                    if (accountBalance < volume * 100) { // Simple margin check
+                         showToast(`Insufficient funds for this trade volume. Requires $${(volume * 100).toFixed(2)} margin.`, "error");
+                         return;
+                    }
+
+                    const trade = {
+                        id: Date.now(),
+                        type: 'SELL',
+                        volume: volume,
+                        entryPrice: orderType === 'market' ? currentMarketPrice : entryPrice,
+                        stopLoss: stopLoss,
+                        takeProfit: takeProfit,
+                        status: orderType === 'market' ? 'Open' : 'Pending',
+                        profitLoss: 0,
+                        openTime: Date.now(),
+                        closeTime: null,
+                        closePrice: null
+                    };
+
+                    if (orderType === 'market') {
+                        openTrades.unshift(trade);
+                        // accountBalance -= (volume * 10); // Simulate margin deduction
+                        showToast(`SELL Market Order placed for EUR/USD, ${volume.toFixed(2)} lots.`, "success");
+                    } else {
+                        openTrades.unshift(trade); // Still add to open trades for UI tracking
+                        showToast(`SELL ${orderType.toUpperCase()} order placed for EUR/USD, ${volume.toFixed(2)} lots at ${entryPrice.toFixed(5)}.`, "success");
+                    }
+                    
+                    updateAccountDisplay();
+                    renderOpenTradesTable();
+                    saveStateToLocalStorage();
+                });
+            }
+
+            // Tools & Indicators Functionality
+            const indicatorList = document.getElementById('indicator-list');
+            const addNewIndicatorButton = document.getElementById('add-new-indicator-button');
+            const closeAllProfitingButton = document.getElementById('close-all-profiting-button');
+            const closeAllLosingButton = document.getElementById('close-all-losing-button');
+
+
+            if (indicatorList) {
+                indicatorList.addEventListener('click', (e) => {
+                    const listItem = e.target.closest('li');
+                    if (listItem && listItem.dataset.indicator) {
+                        showToast(`${listItem.dataset.indicator} applied to chart! (Simulated)`, "info");
+                    }
+                });
+            }
+
+            if (addNewIndicatorButton) {
+                addNewIndicatorButton.addEventListener('click', () => {
+                    showToast("New indicator added to your custom list! (Simulated)", "info");
+                });
+            }
+            
+            // New: Event listeners for batch closing buttons
+            if (closeAllProfitingButton) {
+                closeAllProfitingButton.addEventListener('click', closeAllProfitingTrades);
+            }
+
+            if (closeAllLosingButton) {
+                closeAllLosingButton.addEventListener('click', closeAllLosingTrades);
+            }
+
+
+            // Back to Top Button Logic
+            const backToTopBtn = document.getElementById('back-to-top-btn');
+            if (backToTopBtn) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 200) { // Show button after scrolling 200px
+                        backToTopBtn.classList.add('visible');
+                    } else {
+                        backToTopBtn.classList.remove('visible');
+                    }
+                });
+
+                backToTopBtn.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            // Tabs for Open/Closed Trades Logic
+            const openTradesTabButton = document.getElementById('open-trades-tab');
+            const closedTradesTabButton = document.getElementById('closed-trades-tab');
+            const openTradesContent = document.getElementById('open-trades-content');
+            const closedTradesContent = document.getElementById('closed-trades-content');
+
+            function showTab(tabName) {
+                if (tabName === 'open') {
+                    openTradesTabButton.classList.add('active-tab');
+                    closedTradesTabButton.classList.remove('active-tab');
+                    openTradesContent.classList.remove('hidden');
+                    closedTradesContent.classList.add('hidden');
+                } else if (tabName === 'closed') {
+                    openTradesTabButton.classList.remove('active-tab');
+                    closedTradesTabButton.classList.add('active-tab');
+                    openTradesContent.classList.add('hidden');
+                    closedTradesContent.classList.remove('hidden');
+                }
+            }
+
+            if (openTradesTabButton && closedTradesTabButton && openTradesContent && closedTradesContent) {
+                openTradesTabButton.addEventListener('click', () => showTab('open'));
+                closedTradesTabButton.addEventListener('click', () => showTab('closed'));
+                showTab('open'); // Default to showing open trades
+            }
+        });
+    </script>
+</body>
+</html>
